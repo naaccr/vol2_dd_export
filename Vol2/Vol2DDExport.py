@@ -2,41 +2,31 @@ import sys, argparse, urllib.request
 
 class DDExporter:
 
-    def __init__(self, input_items, dict_url, output_file, verbose):
+    def __init__(self, input_items, dict_url, verbose):
         self.verbose = verbose
+        self.input_items = input_items
+        self.dict_url = dict_url
 
-        if self.verbose:
-            print ('Getting HTML from ' + dict_url)
-
-        dict_html = str(urllib.request.urlopen(dict_url).read(), encoding='utf8')
-
-        items_file = open(input_items, 'r', encoding='utf-8')
-        items_raw = items_file.read()
-        items_file.close()
-
-        dict_entries = self.parse_dict_entries(dict_html)
-        items_list = self.parse_items(items_raw)
-
-        custom_dd = self.build_custom_dd(dict_html, dict_entries, items_list)
+    def write_custom_dd(self, output_file):
         custom_dd_file = open(output_file, 'w', encoding='utf-8')
 
         if self.verbose:
             print ('Writing output file to ' + output_file)
 
-        custom_dd_file.write(custom_dd)
+        custom_dd_file.write(self.custom_dd)
         custom_dd_file.close()
 
         if self.verbose:
-            print ('Exiting...')
+            print ('Finished writing.')
 
-    def build_custom_dd(self, dict_html, dict_entries, items_list):
+    def build_custom_dd(self):
         if self.verbose:
             print ('Building custom Data Dictionary...')
             
         missing_items = []
         items_html = ''
-        start_html = dict_html[:dict_html.find("<body>")].replace('../','http://www.naaccr.org/Applications/')
-        start_html += dict_html[dict_html.find('<div id="Panel2"'):dict_html.find("<a name='")]
+        start_html = self.dict_html[:self.dict_html.find("<body>")].replace('../','http://www.naaccr.org/Applications/')
+        start_html += self.dict_html[self.dict_html.find('<div id="Panel2"'):self.dict_html.find("<a name='")]
 
         end_html = '''
                 </div>
@@ -44,9 +34,9 @@ class DDExporter:
         </html>
         '''
 
-        for item in items_list:
-            if item in dict_entries:
-                items_html += dict_entries[item]
+        for item in self.items_list:
+            if item in self.dict_entries:
+                items_html += self.dict_entries[item]
             else:
                 missing_items.append(item)
 
@@ -54,37 +44,47 @@ class DDExporter:
             print ('The following items were not found in the dictionary: ')
             print (missing_items)
 
-        return start_html + items_html + end_html
+        self.custom_dd = start_html + items_html + end_html
+    
+    def parse_dict_entries(self):
+        if self.verbose:
+            print ('Getting HTML from ' + self.dict_url)
 
-    def parse_dict_entries(self, dict_html):
+        self.dict_html = str(urllib.request.urlopen(self.dict_url).read(), encoding='utf8')
+        
         if self.verbose:
             print ('Parsing Data Dictionary entries from HTML file...')
             
-        dict_entries = {}
+        self.dict_entries = {}
         name_anchor = "<a name='"
-        index = dict_html.find(name_anchor)
+        index = self.dict_html.find(name_anchor)
 
         while index > 0:
             item_start = index
             number_start = index + 9
-            number_end = dict_html.find("'", number_start)
-            next_anchor = dict_html.find(name_anchor, number_end)
+            number_end = self.dict_html.find("'", number_start)
+            next_anchor = self.dict_html.find(name_anchor, number_end)
             
             if next_anchor == -1:
-                item_end = dict_html.find("</div></body>", number_end)
+                item_end = self.dict_html.find("</div></body>", number_end)
             else:
                 item_end = next_anchor
 
-            dict_entries[dict_html[number_start:number_end]] = dict_html[item_start:item_end]
+            self.dict_entries[self.dict_html[number_start:number_end]] = self.dict_html[item_start:item_end]
 
             index = next_anchor
 
         if self.verbose:
-            print ('Entries found: ' + str(len(dict_entries)))
+            print ('Entries found: ' + str(len(self.dict_entries)))
 
-        return dict_entries
+    def parse_items(self):
+        if self.verbose:
+            print ('Reading items file...')
 
-    def parse_items(self, items_raw):
+        items_file = open(self.input_items, 'r', encoding='utf-8')
+        items_raw = items_file.read()
+        items_file.close()
+        
         if self.verbose:
             print ('Parsing items from CSV file...')
 
@@ -94,14 +94,12 @@ class DDExporter:
         items_raw = items_raw.replace(',,',',')
         items_raw = items_raw.replace(' ','')
         items_raw = items_raw.strip()
-        items_list = items_raw.split(',')
+        self.items_list = items_raw.split(',')
 
-        if items_list[-1] == '':
-            items_list.pop()
-        
-        return items_list
+        if self.items_list[-1] == '':
+            self.items_list.pop()
 
-if __name__ == '__main__':
+def main():
     verbose = False
     dict_url = "http://www.naaccr.org/Applications/ContentReader/Default.aspx?c=10"
     output_file = 'custom_dd.html'
@@ -124,4 +122,14 @@ if __name__ == '__main__':
     if args.verbose:
         verbose = True
 
-    ddexp = DDExporter(input_items, dict_url, output_file, verbose)
+    ddexp = DDExporter(input_items, dict_url, verbose)
+    ddexp.parse_dict_entries()
+    ddexp.parse_items()
+    ddexp.build_custom_dd()
+    ddexp.write_custom_dd(output_file)
+
+    if verbose:
+        print ('Exiting...')
+
+if __name__ == '__main__':
+    main()
