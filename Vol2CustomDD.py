@@ -13,6 +13,7 @@ class Vol2CustomDD(Frame):
         self.parent = parent
         self.parent.resizable(0,0)
         self.advanced_open = False
+        self.os = os.name
 
         self.items_file = StringVar()
         
@@ -28,8 +29,14 @@ class Vol2CustomDD(Frame):
     def init_ui(self):
         self.parent.title("Volume II Custom Data Dictionary Exporter")
         self.style = Style()
-        self.style.theme_use("winnative")
-        
+
+        if self.os == 'nt':
+            self.style.theme_use("winnative")
+            self.textbox_width = 64
+        else:
+            self.style.theme_use("default")
+            self.textbox_width = 47
+
         self.pack(fill=BOTH, expand=1)
 
         Label(self, text="Items File:").grid(column=1, row=1, sticky=E)
@@ -44,13 +51,13 @@ class Vol2CustomDD(Frame):
         self.advanced_button.grid(column=1, row=3)
         Button(self, text="Generate", command=self.generate_click).grid(column=3, row=3)
 
-        self.items_file_entry = Entry(self, textvariable=self.items_file, width=64,)
+        self.items_file_entry = Entry(self, textvariable=self.items_file, width=self.textbox_width)
         self.items_file_entry.grid(column=2, row=1)
 
-        self.output_file_entry = Entry(self, textvariable=self.output_file, width=64)
+        self.output_file_entry = Entry(self, textvariable=self.output_file, width=self.textbox_width)
         self.output_file_entry.grid(column=2, row=2)
 
-        self.chap_x_entry = Entry(self, textvariable=self.chap_x_url, width=64)
+        self.chap_x_entry = Entry(self, textvariable=self.chap_x_url, width=self.textbox_width)
         self.chap_x_entry.grid(column=2, row=4)
 
         for child in self.winfo_children():
