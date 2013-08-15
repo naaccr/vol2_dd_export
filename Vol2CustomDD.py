@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with vol2_dd_export.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
+import os, webbrowser, urllib.request, urllib.parse
 from Vol2.Vol2DDExport import DDExporter
 from tkinter import *
 from tkinter import messagebox
@@ -149,6 +149,8 @@ class Vol2CustomDD(Frame):
 
             self.status["text"] = "Document complete!"
 
+            webbrowser.open(urllib.parse.urljoin('file:', urllib.request.pathname2url(self.output_file.get())), new=2)
+            
 def main():
     root = Tk()
     app = Vol2CustomDD(root)
