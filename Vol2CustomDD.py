@@ -1,6 +1,6 @@
 # Author: Joshua Whitley - NAACCR, Inc.
 # Created: 8/13/2013
-# Modified: 8/13/2013
+# Modified: 10/18/2017 by Dustin Dennison - NAACCR,Inc.
 #
 # This file is part of vol2_dd_export.
 #
@@ -40,7 +40,7 @@ class Vol2CustomDD(Frame):
         self.output_file.set(os.path.abspath(os.path.dirname(__file__)) + os.sep + "custom_dd.html")
 
         self.chap_x_url = StringVar()
-        self.chap_x_url.set("http://www.naaccr.org/Applications/ContentReader/Default.aspx?c=10")
+        self.chap_x_url.set("http://datadictionary.naaccr.org/Default.aspx?c=10")
 
         self.init_ui()
         self.center_window()
