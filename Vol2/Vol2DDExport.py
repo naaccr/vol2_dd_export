@@ -1,6 +1,6 @@
 # Author: Joshua Whitley - NAACCR, Inc.
 # Created: 8/13/2013
-# Modified: 8/13/2013
+# Modified: 10/18/2017 by Dustin Dennison - NAACCR,Inc.
 #
 # This file is part of vol2_dd_export.
 #
@@ -44,7 +44,7 @@ class DDExporter:
             
         missing_items = []
         items_html = ''
-        start_html = self.dict_html[:self.dict_html.find("<body>")].replace('../','http://www.naaccr.org/Applications/')
+        start_html = self.dict_html[:self.dict_html.find("<body>")].replace('../','http://datadictionary.naaccr.org/Default.aspx?')
         start_html += self.dict_html[self.dict_html.find('<div id="Panel2"'):self.dict_html.find("<a name='")]
 
         end_html = '''
@@ -120,12 +120,12 @@ class DDExporter:
 
 def main():
     verbose = False
-    dict_url = "http://www.naaccr.org/Applications/ContentReader/Default.aspx?c=10"
+    dict_url = "http://datadictionary.naaccr.org/Default.aspx?c=10"
     output_file = 'custom_dd.html'
 
     parser = argparse.ArgumentParser()
     parser.add_argument("items", help="Name of CSV file containing comma-separated list of item numbers to extract from Data Dictionary.")
-    parser.add_argument("-d", "--dictionary", help="URL of HTML file containing a copy of the Volume II Data Dictionary. Default: http://www.naaccr.org/Applications/ContentReader/Default.aspx?c=10.")
+    parser.add_argument("-d", "--dictionary", help="URL of HTML file containing a copy of the Volume II Data Dictionary. Default: http://datadictionary.naaccr.org/Default.aspx?c=10.")
     parser.add_argument("-o", "--output", help="Name of HTML file for output of custom data dictionary. Default: custom_dd.html")
     parser.add_argument("-v", "--verbose", help="Turn on verbose logging.", action="store_true")
     args = parser.parse_args()
