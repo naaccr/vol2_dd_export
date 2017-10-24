@@ -1,6 +1,7 @@
 # Author: Joshua Whitley - NAACCR, Inc.
 # Created: 8/13/2013
 # Modified: 10/18/2017 by Dustin Dennison - NAACCR,Inc.
+# Modified: 10/24/2017 by Steve Jakob - Wide Skies Information Technologies Inc.
 #
 # This file is part of vol2_dd_export.
 #
@@ -44,7 +45,12 @@ class DDExporter:
             
         missing_items = []
         items_html = ''
-        start_html = self.dict_html[:self.dict_html.find("<body>")].replace('../','http://datadictionary.naaccr.org/Default.aspx?')
+        # Steve's note: the following line was changed to ensure that the URLs are
+        #    correct for the JavaScript and stylesheet files.
+        #    This is the original:
+        # start_html = self.dict_html[:self.dict_html.find("<body>")].replace('../','http://www.naaccr.org/Applications/')
+        #    ... and this is the new version:
+        start_html = self.dict_html[:self.dict_html.find("<body>")].replace('../','http://datadictionary.naaccr.org/').replace('Styles/','http://datadictionary.naaccr.org/Styles/')
         start_html += self.dict_html[self.dict_html.find('<div id="Panel2"'):self.dict_html.find("<a name='")]
 
         end_html = '''
@@ -75,6 +81,7 @@ class DDExporter:
             print ('Parsing Data Dictionary entries from HTML file...')
             
         self.dict_entries = {}
+        # Steve's note: each data dictionary entry is named using the "Item #" value.
         name_anchor = "<a name='"
         index = self.dict_html.find(name_anchor)
 
@@ -120,6 +127,8 @@ class DDExporter:
 
 def main():
     verbose = False
+    # Steve's note: the following line was changed to point to the new web site location
+    #    dict_url = "http://www.naaccr.org/Applications/ContentReader/Default.aspx?c=10"
     dict_url = "http://datadictionary.naaccr.org/Default.aspx?c=10"
     output_file = 'custom_dd.html'
 
